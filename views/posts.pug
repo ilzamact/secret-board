@@ -1,0 +1,50 @@
+doctype html
+html(lang="jp")
+  head
+    meta(charset="UTF-8")
+    link(rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous")
+
+    title 秘密の匿名掲示板
+  body.container
+    div.my-3
+      a(href="/logout").btn.btn-info.float-right ログアウト
+      h1 秘密の匿名掲示板
+    h2 新規投稿
+      form(action="/posts", method="post")
+        div.form-group
+          textarea(name="content" rows="4").form-control
+          input(type="hidden", name="oneTimeToken" value=oneTimeToken)
+        div.form-group
+          button(type="submit").btn.btn-primary 投稿
+
+    h2 投稿一覧
+    each post in posts
+      
+      div.card.my-3
+        div.cord-header
+          - var isPostedByAdmin = (post.postedBy === 'admin')
+          if isPostedByAdmin
+            h3 #{post.id} : 管理人 ★
+          else
+            - var originalTrackingId = post.trackingCookie ? post.trackingCookie.split('_')[0] : ''
+            h3 #{post.id} : ID:#{originalTrackingId}
+        div.cord-body
+          p.card-text(style="white-space:pre; overflow:auto;") #{post.content}
+          
+        div.card.footer
+          div 投稿日時: #{post.formattedCreatedAt}
+        - var isAdmin = (user === 'admin')
+          if isAdmin
+            p 投稿者: #{post.postedBy}
+          - var isDeletable = (user === post.postedBy || isAdmin)
+          if isDeletable
+            form(method="post" action="/posts?delete=1")
+              input(type="hidden" name="id" value=post.id)
+              input(type="hidden", name="oneTimeToken" value=oneTimeToken)
+              button(type="submit").btn.btn-danger.float-right 削除
+
+
+    script(src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous")
+    script(src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous")
+    script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous")
+        
